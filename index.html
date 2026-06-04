@@ -42,7 +42,7 @@
       margin: 0 auto;
       padding: 48px 32px 72px;
       display: grid;
-      grid-template-columns: minmax(360px, 1.1fr) minmax(320px, 0.9fr);
+      grid-template-columns: minmax(320px, 0.9fr) minmax(360px, 1.1fr);
       gap: 56px;
       align-items: stretch;
     }
@@ -55,16 +55,18 @@
       justify-content: center;
       border: 1px solid #eeeeee;
       overflow: hidden;
+      contain: layout paint;
     }
 
     .product-image {
-      max-width: 82%;
-      max-height: 560px;
+      width: 82%;
+      height: 560px;
       object-fit: contain;
       display: block;
       opacity: 0;
       visibility: hidden;
-      transition: opacity 120ms ease;
+      transform: translateZ(0);
+      will-change: opacity;
     }
 
     .product-image.is-visible {
@@ -77,7 +79,6 @@
       min-height: 620px;
       display: flex;
       flex-direction: column;
-      position: relative;
     }
 
     .brand {
@@ -126,66 +127,84 @@
 
     .custom-select {
       position: relative;
+      width: 96%;
+    }
+
+    .custom-select-trigger {
       width: 100%;
+      height: 32px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      font-size: 15px;
+      padding: 0 42px 0 14px;
+      border-radius: 0;
+      outline: none;
+      text-align: left;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .custom-select-trigger::after {
+      content: "";
+      position: absolute;
+      right: 16px;
+      top: 10px;
+      width: 8px;
+      height: 8px;
+      border-right: 1px solid #222;
+      border-bottom: 1px solid #222;
+      transform: rotate(45deg);
+    }
+
+    .custom-select.open .custom-select-trigger {
+      border-color: var(--border);
+    }
+
+    .custom-select.has-selection .custom-select-trigger,
+    .custom-select.open.has-selection .custom-select-trigger {
+      border-color: #111;
+    }
+
+    .trigger-name,
+    .trigger-price {
+      font-size: 13px;
     }
 
     .custom-options {
-      display: block;
-      margin: 0 0 22px;
+      display: none;
+      position: absolute;
+      top: 32px;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      margin: -1px 0 0;
       padding: 0;
       list-style: none;
       background: #fff;
-      border: 0;
+      border: 1px solid #111;
       max-height: none;
       overflow: visible;
     }
 
+    .custom-select.open .custom-options {
+      display: block;
+    }
+
     .custom-option {
-      width: 96%;
-      height: 32px;
-      min-height: 32px;
-      margin: 0 0 5px;
-      padding: 0 11px;
-      border: 1px solid var(--border);
-      background: #fff;
-      color: var(--muted);
+      min-height: 34px;
+      padding: 7px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 18px;
+      gap: 24px;
       font-size: 13px;
-      line-height: 1.2;
+      line-height: 1.35;
       cursor: pointer;
-      outline: none;
-    }
-
-    .custom-option:last-child {
-      margin-bottom: 0;
-    }
-
-    .custom-option.is-selected {
-      border-color: #111;
-      color: #111;
-    }
-
-    .custom-option:hover {
-      background: #f4f4f4;
-    }
-
-    .custom-option.is-selected:hover {
-      background: #fff;
-    }
-
-    .option-name {
-      min-width: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .option-price {
-      flex: 0 0 auto;
-      white-space: nowrap;
     }
 
     .no-buy-option {
@@ -193,7 +212,13 @@
       font-style: normal;
       text-decoration: none;
       letter-spacing: 0;
-      line-height: 1.15;
+      line-height: 1.25;
+    }
+
+    .custom-option.no-buy-option {
+      min-height: 34px;
+      padding: 7px 14px;
+      align-items: center;
     }
 
     .no-buy-option .option-name {
@@ -202,21 +227,24 @@
       text-overflow: ellipsis;
     }
 
+    .trigger-name.no-buy-option {
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .custom-option:hover {
+      background: #f4f4f4;
+    }
+
+
     .decision-message {
       display: none;
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 54px;
-      z-index: 20;
-      margin: 0;
-      padding: 0;
-      background: transparent;
-      border: 0;
+      margin-top: 10px;
       font-size: 13px;
       line-height: 1.4;
       color: #b00020;
-      pointer-events: none;
     }
 
     .decision-message.is-visible {
@@ -264,8 +292,8 @@
       }
 
       .product-image {
-        max-width: 86%;
-        max-height: 380px;
+        width: 86%;
+        height: 380px;
       }
     }
   </style>
@@ -274,7 +302,7 @@
   <header class="topbar">LUNVIERO</header>
 
   <main class="page">
-    <section class="details">
+    <section class="details" aria-label="Product selection area">
       <div class="brand">Aurelia Studio</div>
       <h1>Nilestone Mouse Pad</h1>
       <div class="subtitle">
@@ -285,7 +313,8 @@
       <div class="field">
         <label id="productLabel">Product</label>
         <div class="custom-select" id="productSelect" aria-labelledby="productLabel">
-          <ul class="custom-options" role="listbox" aria-label="Product options"></ul>
+          <button class="custom-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false"></button>
+          <ul class="custom-options" role="listbox"></ul>
         </div>
       </div>
 
@@ -294,29 +323,61 @@
       <button class="button" type="button">Continue</button>
 
     </section>
-  
 
     <section class="image-panel" aria-label="Product image area">
       <img id="productImage" class="product-image" src="" alt="" decoding="async" loading="eager" />
     </section>
-
-    </main>
+  </main>
 
   <script src="products.js"></script>
   <script>
     const productSelect = document.getElementById('productSelect');
+    const trigger = productSelect.querySelector('.custom-select-trigger');
     const optionList = productSelect.querySelector('.custom-options');
     const productImage = document.getElementById('productImage');
     const continueButton = document.querySelector('.button');
     const decisionMessage = document.getElementById('decisionMessage');
 
-    const NO_BUY_TEXT = 'I would like to look for more alternatives';
-    const NO_BUY_IMAGE = 'product-images/More Alternative.png';
-
     let selectedProductName = '';
     let selectedProductImage = '';
     let selectedProductPrice = '';
     let selectedNoBuy = '0';
+
+    const preloadedImages = new Map();
+
+    function preloadImage(src) {
+      if (!src || preloadedImages.has(src)) return;
+
+      const img = new Image();
+      img.decoding = 'async';
+      img.loading = 'eager';
+      img.src = src;
+
+      preloadedImages.set(src, img);
+
+      if (img.decode) {
+        img.decode().catch(() => {});
+      }
+    }
+
+    function preloadProductImages() {
+      if (!Array.isArray(window.PRODUCTS)) return;
+
+      window.PRODUCTS.forEach((product) => {
+        preloadImage(product.image);
+      });
+
+      preloadImage('product-images/More Alternative.png');
+    }
+
+    function showProductImage(src, alt) {
+      if (!src) return;
+
+      preloadImage(src);
+      productImage.src = src;
+      productImage.alt = alt || '';
+      productImage.classList.add('is-visible');
+    }
 
     function shuffleArray(array) {
       const shuffled = [...array];
@@ -325,48 +386,6 @@
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
       return shuffled;
-    }
-
-    function preloadImages() {
-      if (!Array.isArray(window.PRODUCTS)) return;
-
-      const imageSources = [
-        ...window.PRODUCTS.map(product => product.image),
-        NO_BUY_IMAGE
-      ].filter(Boolean);
-
-      imageSources.forEach((src) => {
-        const img = new Image();
-        img.decoding = 'async';
-        img.loading = 'eager';
-        img.src = src;
-      });
-    }
-
-    function selectOption(option) {
-      optionList.querySelectorAll('.custom-option').forEach((item) => {
-        item.classList.remove('is-selected');
-        item.setAttribute('aria-selected', 'false');
-      });
-
-      option.classList.add('is-selected');
-      option.setAttribute('aria-selected', 'true');
-
-      selectedProductName = option.dataset.name || '';
-      selectedProductImage = option.dataset.image || '';
-      selectedProductPrice = option.dataset.noBuy === 'true' ? '' : '$6.5';
-      selectedNoBuy = option.dataset.noBuy === 'true' ? '1' : '0';
-      decisionMessage.classList.remove('is-visible');
-
-      if (option.dataset.noBuy === 'true') {
-        productImage.src = option.dataset.image;
-        productImage.alt = option.dataset.name;
-        productImage.classList.add('is-visible');
-      } else {
-        productImage.src = option.dataset.image;
-        productImage.alt = option.dataset.name;
-        productImage.classList.add('is-visible');
-      }
     }
 
     function buildProductOptions() {
@@ -379,8 +398,6 @@
         const option = document.createElement('li');
         option.className = 'custom-option';
         option.setAttribute('role', 'option');
-        option.setAttribute('aria-selected', 'false');
-        option.setAttribute('tabindex', '0');
         option.dataset.name = product.name;
         option.dataset.image = product.image;
 
@@ -400,10 +417,8 @@
       const noBuyOption = document.createElement('li');
       noBuyOption.className = 'custom-option no-buy-option';
       noBuyOption.setAttribute('role', 'option');
-      noBuyOption.setAttribute('aria-selected', 'false');
-      noBuyOption.setAttribute('tabindex', '0');
-      noBuyOption.dataset.name = NO_BUY_TEXT;
-      noBuyOption.dataset.image = NO_BUY_IMAGE;
+      noBuyOption.dataset.name = 'I would like to look for more alternatives';
+      noBuyOption.dataset.image = 'product-images/More Alternative.png';
       noBuyOption.dataset.noBuy = 'true';
 
       const noBuyText = document.createElement('span');
@@ -413,20 +428,50 @@
       optionList.appendChild(noBuyOption);
     }
 
+    trigger.addEventListener('click', () => {
+      const isOpen = productSelect.classList.toggle('open');
+      trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
     optionList.addEventListener('click', (event) => {
       const option = event.target.closest('.custom-option');
       if (!option) return;
-      selectOption(option);
+
+      trigger.innerHTML = '';
+
+      const selectedName = document.createElement('span');
+      selectedName.className = 'trigger-name';
+      selectedName.textContent = option.dataset.name;
+
+      const selectedPrice = document.createElement('span');
+      selectedPrice.className = 'trigger-price';
+      selectedPrice.textContent = '$6.5';
+
+      trigger.appendChild(selectedName);
+
+      selectedProductName = option.dataset.name || '';
+      selectedProductImage = option.dataset.image || '';
+      selectedProductPrice = option.dataset.noBuy === 'true' ? '' : '$6.5';
+      selectedNoBuy = option.dataset.noBuy === 'true' ? '1' : '0';
+      productSelect.classList.add('has-selection');
+      decisionMessage.classList.remove('is-visible');
+
+      if (option.dataset.noBuy === 'true') {
+        selectedName.classList.add('no-buy-option');
+        showProductImage(option.dataset.image, option.dataset.name);
+      } else {
+        trigger.appendChild(selectedPrice);
+        showProductImage(option.dataset.image, option.dataset.name);
+      }
+      productSelect.classList.remove('open');
+      trigger.setAttribute('aria-expanded', 'false');
     });
 
-    optionList.addEventListener('keydown', (event) => {
-      if (event.key !== 'Enter' && event.key !== ' ') return;
-
-      const option = event.target.closest('.custom-option');
-      if (!option) return;
-
-      event.preventDefault();
-      selectOption(option);
+    document.addEventListener('click', (event) => {
+      if (!productSelect.contains(event.target)) {
+        productSelect.classList.remove('open');
+        trigger.setAttribute('aria-expanded', 'false');
+      }
     });
 
     continueButton.addEventListener('click', () => {
@@ -436,7 +481,9 @@
       }
 
       window.parent.postMessage({
-        type: 'LUNVIERO_CONTINUE',
+        type: 'netlify_complete',
+        choice: selectedProductName,
+        page: window.location.pathname,
         selectedProduct: selectedProductName,
         selectedPrice: selectedProductPrice,
         selectedProductImage: selectedProductImage,
@@ -445,8 +492,8 @@
       }, '*');
     });
 
-    preloadImages();
     buildProductOptions();
+    preloadProductImages();
   </script>
 </body>
 </html>
