@@ -318,6 +318,15 @@
     let selectedProductPrice = '';
     let selectedNoBuy = '0';
 
+    let totalClicks = 0;
+    let optionClicks = 0;
+    let continueClicks = 0;
+    let invalidContinueClicks = 0;
+
+    document.addEventListener('click', () => {
+      totalClicks += 1;
+    }, true);
+
     function shuffleArray(array) {
       const shuffled = [...array];
       for (let i = shuffled.length - 1; i > 0; i -= 1) {
@@ -416,6 +425,8 @@
     optionList.addEventListener('click', (event) => {
       const option = event.target.closest('.custom-option');
       if (!option) return;
+
+      optionClicks += 1;
       selectOption(option);
     });
 
@@ -430,7 +441,10 @@
     });
 
     continueButton.addEventListener('click', () => {
+      continueClicks += 1;
+
       if (!selectedProductName) {
+        invalidContinueClicks += 1;
         decisionMessage.classList.add('is-visible');
         return;
       }
@@ -443,7 +457,11 @@
         selectedPrice: selectedProductPrice,
         selectedProductImage: selectedProductImage,
         productChosen: selectedNoBuy === '1' ? '0' : '1',
-        noBuyOptionChosen: selectedNoBuy
+        noBuyOptionChosen: selectedNoBuy,
+        totalClicks: String(totalClicks),
+        optionClicks: String(optionClicks),
+        continueClicks: String(continueClicks),
+        invalidContinueClicks: String(invalidContinueClicks)
       }, '*');
     });
 
